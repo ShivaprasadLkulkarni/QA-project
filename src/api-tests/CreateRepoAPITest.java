@@ -2,30 +2,24 @@ package api_tests;
 
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
-import static io.restassured.RestAssured.*;
-import static org.hamcrest.Matchers.*;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
-public class CreateRepoAPITest {
-    public static void main(String[] args) {
-        // Set base URI
-        RestAssured.baseURI = "https://api.github.com";
+public class RepositoryApiTest {
 
-        // Your personal access token (replace with your token)
-        String token = "your_personal_access_token";
+    @Test
+    public void createRepository() {
+        String token = "ghp_abCdefgHIJklMnOpQrSTUvWxYz1234567890"; //sample token
+        String repoName = "api-test-repo";
 
-        // Make POST request to create a new repository
-        Response response = given()
-            .header("Authorization", "token " + token)
-            .header("Content-Type", "application/json")
-            .body("{\"name\": \"TestRepo\", \"private\": false}")
-            .when()
-            .post("/user/repos");
+        Response response = RestAssured.given()
+                .header("Authorization", "token " + token)
+                .header("Content-Type", "application/json")
+                .body("{\"name\": \"" + repoName + "\", \"private\": false}")
+                .post("https://api.github.com/user/repos");
 
-        // Verify the response code is 201 Created
-        response.then().statusCode(201);
-
-        // Print response body
-        System.out.println(response.getBody().asString());
+        Assert.assertEquals(response.getStatusCode(), 201);  
+        String responseBody = response.getBody().asString();
+        Assert.assertTrue(responseBody.contains(repoName));
     }
 }
-

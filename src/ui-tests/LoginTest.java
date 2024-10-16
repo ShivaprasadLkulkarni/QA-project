@@ -4,38 +4,47 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 public class LoginTest {
-    public static void main(String[] args) {
-        // Set the path to the ChromeDriver
-        System.setProperty("webdriver.chrome.driver", "/path/to/chromedriver");
+    WebDriver driver;
 
-        // Initialize the browser
-        WebDriver driver = new ChromeDriver();
-
-        // Navigate to GitHub login page
+    @BeforeMethod
+    public void setup() {
+        System.setProperty("webdriver.chrome.driver", "path_to_chromedriver");
+        driver = new ChromeDriver();
         driver.get("https://github.com/login");
+    }
 
-        // Locate and fill in the username and password fields
+    @Test
+    public void loginWithValidCredentials() {
         WebElement username = driver.findElement(By.id("login_field"));
         WebElement password = driver.findElement(By.id("password"));
+        WebElement loginButton = driver.findElement(By.name("commit"));
 
-        username.sendKeys("your-username");
-        password.sendKeys("your-password");
+        username.sendKeys("your_username");
+        password.sendKeys("your_password");
+        loginButton.click();
 
-        // Click the sign-in button
+        // Verify user is logged in
+        WebElement profileDropdown = driver.findElement(By.cssSelector(".Header-link"));
+        Assert.assertTrue(profileDropdown.isDisplayed());
+    }
+
+    @Test
+    public void testEmptyFields() {
         WebElement loginButton = driver.findElement(By.name("commit"));
         loginButton.click();
 
-        // Add assertions to verify login success (e.g., by checking the page URL)
-        if (driver.getCurrentUrl().contains("github.com")) {
-            System.out.println("Login Test Passed!");
-        } else {
-            System.out.println("Login Test Failed!");
-        }
+        WebElement error = driver.findElement(By.cssSelector(".flash-error"));
+        Assert.assertTrue(error.isDisplayed());
+    }
 
-        // Close the browser
+    @AfterMethod
+    public void tearDown() {
         driver.quit();
     }
 }
-
